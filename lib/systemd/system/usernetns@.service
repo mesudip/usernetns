@@ -1,0 +1,14 @@
+[Unit]
+Description=Setup private network namespace for user (%i)
+After=usernetns-bridge.service
+Wants=usernetns-bridge.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=makeusernetns %i
+ExecStop=ip netns delete %i	
+
+[Install]
+WantedBy=multi-user.target
+

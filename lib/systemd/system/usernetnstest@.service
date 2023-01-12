@@ -1,0 +1,19 @@
+[Unit]
+Description=Demo usernetns instance (%i)
+After=usernetns@%i.service
+Wants=usernetns@%i.service
+
+[Service]
+NetworkNamespacePath=/var/run/netns/%i
+WorkingDirectory=/home/%i
+PrivateMounts=true
+User= %i
+Group= %i
+BindPaths=/etc/netns/%i/resolv.conf:/etc/resolv.conf
+Type=oneshot
+#ExecStartPre=!mount --bind /etc/netns/%i/resolv.conf /etc/resolv.conf
+#ExecStartPre=!mount -t sysfs none /sys
+ExecStart=/bin/bash -c "set -x ;whoami; ip addr show; ip route; cat /etc/resolv.conf ;ls /sys/class/net | head; "
+[Install]
+WantedBy=multi-user.target
+

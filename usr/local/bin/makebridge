@@ -1,0 +1,31 @@
+#!/bin/bash
+
+
+set -e
+if (( $# != 2 )); then
+
+    >&2 echo "Usage: makebridge name ipAddress"
+    >&2 echo "eg   :"
+    >&2 echo "     : makebridge br0 10.0.1.0/24"
+    
+    exit 1
+fi
+
+
+BRIDGE_DEV=$1
+BRIDGE_IP=$2
+NAMESPACE_DEV=eth0
+
+
+set -x
+# setup bridge
+function  makebridge() {
+  ip link add ${BRIDGE_DEV} type bridge
+  ip link set ${BRIDGE_DEV} up
+
+  # setup bridge ip
+  ip addr add ${BRIDGE_IP} dev ${BRIDGE_DEV}
+}
+(ip link show ${BRIDGE_DEV} &&  ip link delete $BRIDGE_DEV && false )  ||  makebridge
+
+
