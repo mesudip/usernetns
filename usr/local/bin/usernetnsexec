@@ -18,10 +18,10 @@ USERNETNS_BRIDGE=${USERNETNS_BRIDGE:-"userswitch"}
 USERNETNS_BRIDGE_IP=${USERNETNS_BRIDGE_IP:-"172.31.31.0/24"}
 
 # make bridge if not exists
-ip link show ${BRIDGE_DEV}  > /dev/null|| makebridge ${BRIDGE_DEV} ${BRIDGE_IP}/24
+ip link show ${BRIDGE_DEV}  > /dev/null|| makebridge ${USERNETNS_BRIDGE} ${USERNETNS_BRIDGE_IP}
 
 # make namespace if not exists
-(ip netns list |  grep -e '^\w*'  -o | grep -e '^'$NAMESPACE'$'  2>&1 >/dev/null )    || makeusernetns 
+(ip netns list |  grep -e '^\w*'  -o | grep -e '^'$NAMESPACE'$'  2>&1 >/dev/null )    || makeusernetns  $NAMESPACE
 
 shift
 exec ip netns exec $NAMESPACE su - $USERNAME -c "$*"
