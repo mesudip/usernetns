@@ -11,13 +11,13 @@ EnvironmentFile=/etc/usernetns.conf
 
 ExecStartPost=iptables -A FORWARD -i ${USERNETNS_BRIDGE} -j ACCEPT
 ExecStartPost=iptables -A FORWARD -o ${USERNETNS_BRIDGE} -j ACCEPT
-ExecStartPost=iptables -t nat -A POSTROUTING -o enp2s0 -j MASQUERADE
+ExecStartPost=iptables -t nat -A POSTROUTING -o $USERNETNS_SYSTEM_INTERFACE -j MASQUERADE
 
 ExecStart=makebridge ${USERNETNS_BRIDGE} $USERNETNS_BRIDGE_IP
 
 ExecStopPost=iptables -D FORWARD -i ${USERNETNS_BRIDGE} -j ACCEPT
 ExecStopPost=iptables -D FORWARD -o ${USERNETNS_BRIDGE} -j ACCEPT
-ExecStopPost=iptables -t nat -D POSTROUTING -o enp2s0 -j MASQUERADE
+ExecStopPost=iptables -t nat -D POSTROUTING -o $USERNETNS_SYSTEM_INTERFACE -j MASQUERADE
 
 
 [Install]

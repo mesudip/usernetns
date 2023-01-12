@@ -23,7 +23,7 @@ test $USERID  -lt 1252  || failreturn "Expected uid to be < 1252"
 NAMESPACE=$USERNAME
 USERNETNS_BRIDGE=${2:-"${USERNETNS_BRIDGE:-userswitch}"}
 USERNETNS_NAMESPACE_DEV="${USERNETNS_NAMESPACE_DEV:-eth0}"
-USERNETNS_DNS=${USERNETNS_DNS:-"8.8.8.8"}
+USERNETNS_NAMESERVER=${USERNETNS_NAMESERVER:-"8.8.8.8"}
 
 
 ip link show ${USERNETNS_BRIDGE} 2>&1 >/dev/null  || failreturn "Bridge \"$USERNETNS_BRIDGE\" doesn't exist"
@@ -36,7 +36,7 @@ NAMESPACE_IP="$IP_PREFIX.$((  $USERID - 999 ))/24"
 test ! -z "$BRIDGE_IP" || failreturn "Bridge \"$USERNETNS_BRIDGE\" doesn't have ip set"
 mkdir -p /etc/netns/$NAMESPACE
 set -x 
-test -f "/etc/netns/$NAMESPACE/resolve.conf" || echo "nameserver $USERNETNS_DNS" > "/etc/netns/$NAMESPACE/resolv.conf"
+test -f "/etc/netns/$NAMESPACE/resolve.conf" || echo "nameserver $USERNETNS_NAMESERVER" > "/etc/netns/$NAMESPACE/resolv.conf"
 # delete namespace if exists
 (ip netns list |  grep -e '^\w*'  -o | grep -e '^'$NAMESPACE'$'  2>&1 >/dev/null )   &&  ip netns delete $NAMESPACE 
 
