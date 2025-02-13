@@ -1,0 +1,67 @@
+#!/bin/bash
+set -ex
+# if first arg is present, it's the user name
+if [[ -n $1 ]]; then
+  USERNAME=$1
+  # Check if the user exists
+  if id "$USERNAME" &>/dev/null; then
+    HOME=$(eval echo "~$USERNAME")
+    GROUPID=$(id -g "$USERNAME")
+  else
+    echo "User '$USERNAME' does not exist. Exiting."
+    exit 1
+  fi
+fi
+# Define the SSHD directory
+SSHD_DIR="$HOME/.sshd"
+CONFIG_FILE="$SSHD_DIR/sshd_config"
+LOG_FILE="$SSHD_DIR/sshd.log"
+
+# Ensure the .sshd directory exists
+mkdir -p "$SSHD_DIR"
+chown "$USERNAME:$GROUPID" "$SSHD_DIR"
+
+# Generate server keys if they don't exist
+generate_key() {
+  local key_type=$1
+  local key_file="$SSHD_DIR/ssh_host_${key_type}_key"
+  if [[ ! -f $key_file ]]; then
+    ssh-keygen -t $key_type -f "$key_file" -N "" >/dev/null 2>&1
+    chown "$USERNAME:$GROUPID" "$key_file" "$key_file.pub"
+  fi
+}
+
+generate_key ecdsa
+generate_key ed25519
+
+# Create a basic sshd_config if it doesn't exist
+if [[ ! -f $CONFIG_FILE ]]; then
+  cat > "$CONFIG_FILE" <<EOF
+# SSHD Config
+Port 22
+HostKey $SSHD_DIR/ssh_host_ecdsa_key
+HostKey $SSHD_DIR/ssh_host_ed25519_key
+AuthorizedKeysFile $HOME/.ssh/authorized_keys
+PermitRootLogin no
+PasswordAuthentication yes
+ChallengeResponseAuthentication no
+UsePAM no
+Subsystem sftp internal-sftp
+PidFile $SSHD_DIR/sshd.pid
+LogLevel INFO
+# Redirect logs to a user-writable location
+SyslogFacility AUTH
+LogLevel INFO
+EOF
+  chown "$USERNAME:$GROUPID" "$CONFIG_FILE"
+fi
+
+# Ensure a writable log file
+
+if [ ! -f "$LOG_FILE" ]; then
+    # Create the log file if it doesn't exist
+    touch "$LOG_FILE"
+    chmod 600 "$LOG_FILE"
+    chown "$USERNAME:$GROUPID" "$LOG_FILE"
+
+fi

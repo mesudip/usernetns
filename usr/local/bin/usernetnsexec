@@ -1,11 +1,10 @@
 #!/bin/bash
-
 source /etc/usernetns.conf
 set -e
 if (( $# < 2 )); then
     >&2 echo "usernetnsexec"
     >&2 echo "  Automatically makes bridge and namespace if required and runs the program on that namespace "
-    >&2 echo "  runonusernetns UserName command [commandargs]"
+    >&2 echo "  usernetnsexec UserName command [commandargs]"
     exit 1
 fi
 

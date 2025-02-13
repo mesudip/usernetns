@@ -1,11 +1,15 @@
 #!/bin/bash
 INSTALL_PATH=${INSTALL_PATH:-""}
 
+function systeminstall(){
+    install  "$@"
+}
+
 function doInstall(){
     local arg1="$1"
     shift
     echo + install ".$arg1" " $INSTALL_PATH$arg1" "$@"
-    install "./$arg1" "$INSTALL_PATH$arg1" "$@"
+    systeminstall "./$arg1" "$INSTALL_PATH$arg1" "$@"
 }
 function doInstallIfNotExits(){
     local arg1="$1"
@@ -15,7 +19,7 @@ function doInstallIfNotExits(){
         echo "  Skipping:  $arg1 : already exists."
     else
         echo + install ".$arg1" " $INSTALL_PATH$arg1" "$@"
-        install "./$arg1" "$INSTALL_PATH$arg1" "$@"
+        systeminstall "./$arg1" "$INSTALL_PATH$arg1" "$@"
     fi
 }
 
@@ -33,9 +37,11 @@ function performReplace(){
     $1   /lib/systemd/system/usernetns-bridge.service
     $1   /lib/systemd/system/usernetnstest@.service
     $1   /lib/systemd/system/usernetns@.service
+    $1   /lib/systemd/system/usersshd@.service
     $1   /usr/local/bin/makebridge
     $1   /usr/local/bin/makeusernetns
     $1   /usr/local/bin/usernetnsexec
+    $1   /usr/local/bin/usersshconfig
 }
 
 function performOnConfig(){
