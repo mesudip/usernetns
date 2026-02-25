@@ -3,6 +3,11 @@ Description=Setup private network namespace for user (%i)
 After=usernetns-bridge.service
 Wants=usernetns-bridge.service
 
+BindsTo=usernetns@%i.service
+# This ensures usersshd restarts if the bridge or namespace restarts
+PartOf=usernetns@%i.service usernetns-bridge.service
+
+
 [Service]
 Type=oneshot
 RemainAfterExit=yes

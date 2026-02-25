@@ -3,6 +3,9 @@ Description=OpenSSH server for %i
 After=usernetns@%i.service
 Wants=usernetns@%i.service
 
+BindsTo=usernetns@%i.service
+PartOf=usernetns@%i.service
+
 [Service]
 NetworkNamespacePath=/var/run/netns/%i
 BindPaths=/etc/netns/%i/resolv.conf:/etc/resolv.conf
